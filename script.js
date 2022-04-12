@@ -27,7 +27,7 @@ let wind = document.querySelector(".wind")
 let icon = document.querySelector("#icon")
 function displayWeather(){
     city.innerHTML = `Weather in ${data.name}`
-    temp.innerHTML = `${Math.floor(data.main.temp)}°F`
+    temp.innerHTML = `${Math.round(data.main.temp)}°F`
 
     let description = data.weather[0].description.split(" ")
     let descriptionCaps = []
@@ -41,7 +41,7 @@ function displayWeather(){
 
     humidity.innerHTML = `Humidity: ${data.main.humidity}%`
     
-    wind.innerHTML = `Wind Speed: ${Math.floor(data.wind.speed)} mph`
+    wind.innerHTML = `Wind Speed: ${Math.round(data.wind.speed)} mph`
     
     switch(data.weather[0].main){
         case "Clouds": 
@@ -68,7 +68,7 @@ function getGeoWeatherByZip() {
         .then(res => res.json())
         .then(data => {
             city.innerHTML = `Weather in ${data.name}`
-            temp.innerHTML = `${Math.floor(data.main.temp)}°F`
+            temp.innerHTML = `${Math.round(data.main.temp)}°F`
     
             let description = data.weather[0].description.split(" ")
             let descriptionCaps = []
@@ -82,8 +82,15 @@ function getGeoWeatherByZip() {
     
             humidity.innerHTML = `Humidity: ${data.main.humidity}%`
     
-            wind.innerHTML = `Wind Speed: ${Math.floor(data.wind.speed)} mph`
-    
+            wind.innerHTML = `Wind Speed: ${Math.round(data.wind.speed)} mph`
+            
+            document.querySelector(".low").innerHTML = `${Math.round(data.main.temp_min)}°F`
+            document.querySelector(".high").innerHTML = `${Math.round(data.main.temp_max)}°F`
+
+            document.querySelector(".feels-like").innerHTML = `Feels Like: ${Math.round(data.main.feels_like)}°F`
+            console.log(data)
+            console.log(data.main.feels_like)
+
             switch(data.weather[0].main){
                 case "Clouds": 
                     icon.className = "bi bi-clouds"
@@ -127,14 +134,13 @@ function getPosition () {
     return navigator.geolocation.getCurrentPosition(getCoords)
 }
 locationButton.addEventListener("click", (e) => {
-    console.log(e.target)
+    // console.log(e.target)
         fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&appid=0f694359e25ccf590bb71af57cb9504d&units=imperial`)
         .then(res => res.json())
         .then(data => {
+            // city.innerHTML = `Weather in ${data.name}`
+            temp.innerHTML = `${Math.round(data.current.temp)}°F`
             console.log(data)
-            city.innerHTML = `Weather in ${data.name}`
-            temp.innerHTML = `${Math.floor(data.current.temp)}°F`
-    
             let description = data.current.weather[0].description.split(" ")
             let descriptionCaps = []
             description.map(w => {
@@ -147,7 +153,7 @@ locationButton.addEventListener("click", (e) => {
     
             humidity.innerHTML = `Humidity: ${data.current.humidity}%`
     
-            wind.innerHTML = `Wind Speed: ${Math.floor(data.current.wind_speed)} mph`
+            wind.innerHTML = `Wind Speed: ${Math.round(data.current.wind_speed)} mph`
     
             switch(data.current.weather[0].main){
                 case "Clouds": 
@@ -168,14 +174,20 @@ locationButton.addEventListener("click", (e) => {
     
             }
             let feelsLike = document.querySelector(".feels-like")
-            feelsLike.innerHTML = `Feels like: ${Math.floor(data.current.feels_like)}°F`
+            feelsLike.innerHTML = `Feels like: ${Math.round(data.current.feels_like)}°F`
 
             let low = document.querySelector(".low")
             let high = document.querySelector(".high")
-            low.innerHTML = `${Math.floor(data.daily[0].temp.min)}°F`
-            high.innerHTML = `${Math.floor(data.daily[0].temp.max)}°F`
+            low.innerHTML = `${Math.round(data.daily[0].temp.min)}°F`
+            high.innerHTML = `${Math.round(data.daily[0].temp.max)}°F`
+            console.log("it works")
+            
+            fetch(`http://api.geonames.org/findNearestAddressJSON?lat=${data.lat}&lng=${data.lon}&username=simone.mayers`)
+            .then(res => res.json())
+            .then(data => city.innerHTML = `Weather in ${data.address.placename}`)
         })
-
 })
 
 getPosition()
+
+document.querySelector(".time").innerHTML = `${new Date().toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"long", day:"numeric", time:"long"})} ${new Date().toLocaleTimeString([], {hour: "numeric", minute:"numeric"})}`
